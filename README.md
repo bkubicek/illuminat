@@ -17,3 +17,7 @@ Status:
 * slice them, and fill them
 * display the slices.
 
+
+Requirements:
+* needs qt5
+* plan is to have no additional dependencies.
