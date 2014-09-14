@@ -9,6 +9,7 @@ class QGraphicsScene;
 class QSlider;
 class QGraphicsView ;
 class QPushButton;
+class Motion;
 
 class MainWindow : public QMainWindow
 {
@@ -23,14 +24,22 @@ public:
 
 
      void renderLayer(const float z);
+     void renderBlack();
      QPixmap *pm;
      QGraphicsScene *gs;
      QGraphicsView *gv;
      QSlider *sl;
      QPushButton *pbLoad;
+     QPushButton *pbRun;
+
+     float currentz;
+     Motion *mo;
 public slots:
      void slChanged(int);
      void pbLoadClicked();
+
+     void runClicked();
+     void perform();
 };
 
 #endif // MAINWINDOW_H

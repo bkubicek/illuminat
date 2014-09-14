@@ -5,6 +5,8 @@
 #include <iostream>
 #include <sstream>
 #include <float.h>
+#include <stdint.h>
+
 using namespace std;
 StlFile::StlFile()
 {

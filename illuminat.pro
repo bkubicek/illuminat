@@ -6,20 +6,25 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
 
 TARGET = illuminat
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++11 -O3
+QMAKE_CXXFLAGS +=  -O3
 
 SOURCES += main.cpp\
         mainwindow.cpp \
         triface.cpp \
 		stlfile.cpp \
-		layer.cpp
+		layer.cpp \
+    motion.cpp
 
 HEADERS  += mainwindow.h \
 		triface.h \
 		stlfile.h \
-		layer.h
+		layer.h \
+    motion.h
+
+OTHER_FILES += \
+    settings.ini
