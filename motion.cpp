@@ -6,7 +6,7 @@ using namespace std;
 Motion::Motion()
 {
     exposure=0.5;
-    layerheight=0.1;
+    layerheight=0.5;
     gcodeLayer=";layer";
     gcodeStart=";start";
     gcodeEnd=";end";
@@ -35,6 +35,7 @@ void Motion::doEnd()
 
 void Motion::connect(QString port,int baud)
 {
+  #if QT_VERSION >= 0x050000
     serial.setPortName(port);
     serial.setBaudRate(baud);
    if (serial.open( QIODevice::ReadWrite))
@@ -42,10 +43,15 @@ void Motion::connect(QString port,int baud)
 
 
    }
+   
+  #endif
 }
 void Motion::disconnect()
 {
+  #if QT_VERSION >= 0x050000
     serial.close();
+    
+  #endif
 }
 void Motion::send(QString text)
 {

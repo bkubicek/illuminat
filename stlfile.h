@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "triface.h"
-#include <qstring>
+#include <QString>
 
 class ZTree
 {

@@ -77,6 +77,7 @@ void Illuminator::perform()
     {
         renderBlack();
         mo->doEnd();
+	exit(0);
     }
 }
 

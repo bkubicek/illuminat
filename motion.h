@@ -2,8 +2,12 @@
 #define MOTION_H
 #include <QString>
 
+
+#if QT_VERSION >= 0x050000
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+
+#endif
 
 
 class Motion
@@ -26,7 +30,12 @@ public:
     void connect(QString port,int baud);
     void disconnect();
     void send(QString text);
+    #if QT_VERSION >= 0x050000
     QSerialPort serial;
+    #else
+    
+    #endif
+    
 };
 
 #endif // MOTION_H
