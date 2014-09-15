@@ -158,24 +158,33 @@ void StlFile::write(const QString &filename, bool bin)
 
 void StlFile::calcRange()
 {
-    range[0][0]=FLT_MAX;range[0][1]=FLT_MIN;
-    range[1][0]=FLT_MAX;range[1][1]=FLT_MIN;
-    range[2][0]=FLT_MAX;range[2][1]=FLT_MIN;
-    for(int i=0;i<t.size();i++)
+    if(t.size()>0)
     {
-         for(int j=0;j<3;j++)
-         {
-             if(t[i].range[j][0]<range[j][0])
-                 range[j][0]=t[i].range[j][0];
-             if(t[i].range[j][1]>range[j][1])
-                 range[j][1]=t[i].range[j][1];
-         }
+        range[0][0]=FLT_MAX;range[0][1]=FLT_MIN;
+        range[1][0]=FLT_MAX;range[1][1]=FLT_MIN;
+        range[2][0]=FLT_MAX;range[2][1]=FLT_MIN;
+        for(int i=0;i<t.size();i++)
+        {
+             for(int j=0;j<3;j++)
+             {
+                 if(t[i].range[j][0]<range[j][0])
+                     range[j][0]=t[i].range[j][0];
+                 if(t[i].range[j][1]>range[j][1])
+                     range[j][1]=t[i].range[j][1];
+             }
 
+        }
+        cout<<"Range:\n";
+        cout<<range[0][0]<<"\t"<<range[0][1]<<"\n";
+        cout<<range[1][0]<<"\t"<<range[1][1]<<"\n";
+        cout<<range[2][0]<<"\t"<<range[2][1]<<"\n";
     }
-    cout<<"Range:\n";
-    cout<<range[0][0]<<"\t"<<range[0][1]<<"\n";
-    cout<<range[1][0]<<"\t"<<range[1][1]<<"\n";
-    cout<<range[2][0]<<"\t"<<range[2][1]<<"\n";
+    else
+    {
+        range[0][0]=0;range[0][1]=1;
+        range[1][0]=0;range[1][1]=1;
+        range[2][0]=0;range[2][1]=1;
+    }
     calcBands(10);
 }
 

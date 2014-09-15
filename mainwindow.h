@@ -4,12 +4,12 @@
 #include <QMainWindow>
 #include "stlfile.h"
 
-class QPixmap;
-class QGraphicsScene;
+
 class QSlider;
-class QGraphicsView ;
+
 class QPushButton;
 class Motion;
+class Illuminator;
 
 class MainWindow : public QMainWindow
 {
@@ -19,27 +19,21 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void loadSTL();
-     StlFile stl;
 
 
-     void renderLayer(const float z);
-     void renderBlack();
-     QPixmap *pm;
-     QGraphicsScene *gs;
-     QGraphicsView *gv;
+
+    Illuminator *il;
+
      QSlider *sl;
      QPushButton *pbLoad;
      QPushButton *pbRun;
 
-     float currentz;
-     Motion *mo;
+
 public slots:
      void slChanged(int);
      void pbLoadClicked();
 
-     void runClicked();
-     void perform();
+
 };
 
 #endif // MAINWINDOW_H

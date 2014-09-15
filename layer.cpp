@@ -93,6 +93,25 @@ void Layer::bhm_line(int x1,int y1,int x2,int y2,char c)
 
 bool Layer::flootFill(char fillcol, char bcol)
 {
+    for(int y=1;y<sy;y++)
+    {
+        for(int x=1;x<sx;x++)
+        {
+             if(bvec[x+sx*y]==bcol)
+                bvec[x+sx*y]=fillcol;
+             else break;
+        }
+
+        for(int x=sx-2;x>0;x--)
+        {
+             if(bvec[x+sx*y]==bcol)
+                bvec[x+sx*y]=fillcol;
+             else break;
+        }
+
+    }
+
+
     bool anychange=false;
     bool change=false;
     int cnt=0;
@@ -209,23 +228,7 @@ void Layer::fromStl(float z, StlFile &stl)
         bvec[0+sx*y]=fchar;
         bvec[sx-1+sx*y]=fchar;
     }
-    for(int y=1;y<sy;y++)
-    {
-        for(int x=1;x<sx;x++)
-        {
-             if(bvec[x+sx*y]==bchar)
-                bvec[x+sx*y]=fchar;
-             else break;
-        }
 
-        for(int x=sx-2;x>0;x--)
-        {
-             if(bvec[x+sx*y]==bchar)
-                bvec[x+sx*y]=fchar;
-             else break;
-        }
-
-    }
 
 
 

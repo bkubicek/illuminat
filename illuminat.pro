@@ -18,13 +18,15 @@ SOURCES += main.cpp\
         triface.cpp \
 		stlfile.cpp \
 		layer.cpp \
-    motion.cpp
+    motion.cpp \
+    illuminator.cpp
 
 HEADERS  += mainwindow.h \
 		triface.h \
 		stlfile.h \
 		layer.h \
-    motion.h
+    motion.h \
+    illuminator.h
 
 OTHER_FILES += \
     settings.ini
