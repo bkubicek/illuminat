@@ -35,7 +35,7 @@ public slots:
 
     void runClicked();
     void perform();
-
+    //void resized(); //called in window mode if the window changes size
 
 private:
     QPixmap *pm;

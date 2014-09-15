@@ -12,12 +12,27 @@ StlFile::StlFile()
 {
 }
 
-void StlFile::read(const QString &filename,bool bin)
+void StlFile::read(const QString &filename)
 {
+    t.clear();
+    bool bin=true;
+
+    fstream in(filename.toLatin1(),fstream::in);
+    if(!in.good())
+    {
+        cerr<<"file not found"<<endl;
+        return ;
+    }
+    string start;
+    in>>start;
+    if(start=="solid")
+        bin=false;
+    in.close();
+
 
     if(bin)
     {
-        //cerr<<"exporting bin"<<endl;
+        cerr<<"reading bin"<<endl;
         char header[80]="";
         uint32_t triangles=t.size();
 
@@ -61,30 +76,73 @@ void StlFile::read(const QString &filename,bool bin)
     }
     else //ascii
     {
+        cerr<<"reading ascii"<<endl;
         fstream in(filename.toLatin1(),fstream::in);
-        string header;
-        getline(in,header);
+
         string solid;
         getline(in,solid);
+        //cout<<"solid:"<<solid<<endl;
         while(in.good())
         {
             string facet;
             getline(in,facet);
-            stringstream ss(facet);
-            string f;
-            ss>>f;
-            if(f=="endsolid")
-                break;//eof
+            //cout<<"facet:"<<facet<<endl;
+            if(1)
+            {
+                stringstream ss(facet);
+                string f;
+                ss>>f;
+                if(f=="endsolid")
+                {
+                    cerr<<"End detected"<<endl;
+                    break;//eof
+                }
+            }
             string outer;
+
             getline(in,outer);
+            //cout<<"outer:"<<outer<<endl;
+            if(1)
+            {
+                stringstream ss(outer);
+                string testouter;
+                ss>>testouter;
+                if(testouter!="outer")
+                {
+                    cerr<<"Outer loop mismatch"<<t.size()<<endl;
+                    cerr<<outer<<endl;
+                }
+            }
             string  vertex;
             TriFace tr;
-            in>>vertex;in>>tr.p[0][0];in>>tr.p[0][1];in>>tr.p[0][2];getline(in,vertex);
-            in>>vertex;in>>tr.p[1][0];in>>tr.p[1][1];in>>tr.p[1][2];getline(in,vertex);
-            in>>vertex;in>>tr.p[2][0];in>>tr.p[2][1];in>>tr.p[2][2];getline(in,vertex);
+            {
+                string vline;
+                getline(in,vline);
+                stringstream ss(vline);
+                ss>>vertex;ss>>tr.p[0][0];ss>>tr.p[0][1];ss>>tr.p[0][2];
+            }
+            {
+                string vline;
+                getline(in,vline);
+                stringstream ss(vline);
+                ss>>vertex;ss>>tr.p[1][0];ss>>tr.p[1][1];ss>>tr.p[1][2];
+            }
+            {
+                string vline;
+                getline(in,vline);
+                stringstream ss(vline);
+                ss>>vertex;ss>>tr.p[2][0];ss>>tr.p[2][1];ss>>tr.p[2][2];
+            }
+
+            tr.calcRange();
+            tr.calcN();
+
+            t.push_back(tr);
+
             string endloop;
+            string endfacet;
            getline(in,endloop);
-           getline(in,endloop);
+           getline(in,endfacet);
         }
         //out<<"endsolid thing"<<endl;
         //out.close();
@@ -163,7 +221,7 @@ void StlFile::calcRange()
         range[0][0]=FLT_MAX;range[0][1]=FLT_MIN;
         range[1][0]=FLT_MAX;range[1][1]=FLT_MIN;
         range[2][0]=FLT_MAX;range[2][1]=FLT_MIN;
-        for(int i=0;i<t.size();i++)
+        for(int i=0;i<(int)t.size();i++)
         {
              for(int j=0;j<3;j++)
              {
@@ -185,7 +243,7 @@ void StlFile::calcRange()
         range[1][0]=0;range[1][1]=1;
         range[2][0]=0;range[2][1]=1;
     }
-    calcBands(10);
+    calcBands(30);
 }
 
 void StlFile::calcBands(int n)
@@ -212,7 +270,7 @@ void StlFile::calcBands(int n)
 
 int StlFile::findBand(const float z)
 {
-    for(int b=0;b<bands.size();b++)
+    for(int b=0;b<(int)bands.size();b++)
     {
 
         if(bandlimits[b]<=z && bandlimits[b+1]>z)

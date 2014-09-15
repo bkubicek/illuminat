@@ -14,7 +14,7 @@ Motion::Motion()
 
 void Motion::readSettingsFrom(QString filename)
 {
-
+    filename;
 }
 
 

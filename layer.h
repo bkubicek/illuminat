@@ -19,6 +19,7 @@ public:
 private:
     void bhm_line(int x1,int y1,int x2,int y2,char c); //line drawing
     bool flootFill(char fillcol, char bcol);
+    void realFloodfill(char fillcol, char bcol);
 
     static const char fchar=1;
     static const char fchar2=4;

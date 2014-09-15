@@ -1,6 +1,10 @@
 #include "layer.h"
 
 #include <QImage>
+#include <stack>
+#include <iostream>
+using namespace  std;
+
 Layer::Layer()
 {
     sx=0;sy=0;
@@ -176,7 +180,7 @@ void Layer::fromStl(float z, StlFile &stl)
     float yres=(stl.range[1][1]-stl.range[1][0])/float(sy-4);
     int band=stl.findBand(z);
     if(band>=0)
-    for(int i=0;i<stl.bands[band].size();i++)
+    for(int i=0;i<(int)stl.bands[band].size();i++)
     if(stl.t[stl.bands[band][i]].isInZ(z))
     {
         TriFace &t=stl.t[stl.bands[band][i]];
@@ -189,48 +193,30 @@ void Layer::fromStl(float z, StlFile &stl)
             ia[1]=int(2+(a[1]-stl.range[1][0])/yres);
             ib[0]=int(2+(b[0]-stl.range[0][0])/xres);
             ib[1]=int(2+(b[1]-stl.range[1][0])/yres);
-            /*
-            float l=2*sqrt(pow(ia[0]-ib[0],2)+pow(ia[1]-ib[1],2));
-            for(float t=0;t<=1;t+=1/l)
-            {
-                float x,y;
-                //x=ia[0]+t*(ib[0]-ia[0]);
-                //y=ia[1]+t*(ib[1]-ia[1]);
-                //im.setPixel(2+(x-stl.range[0][0])/xres,2+(y-stl.range[1][0])/yres,qRgb(128,128,128));
-                //int xx=int(2+(x-stl.range[0][0])/xres);
-                //int yy=int(2+(y-stl.range[1][0])/yres);
-                int xx=ia[0]+t*(ib[0]-ia[0]);;
-                int yy=ia[1]+t*(ib[1]-ia[1]);
-                if((xx>0) && (xx <sx) &&(yy>0) && (yy<sy))
-                bvec[xx+sx*yy]=lchar;
-            }
-            */
 
             bhm_line(ia[0],ia[1],ib[0],ib[1],lchar);
 
 
         }
     }
-    //im.setPixel(50,50,qRgb(255,128,128));
-    if(1 /*do filling */)
+
+    bvec[0]=bchar;
+    realFloodfill(fchar,bchar);
+    if(0 /*do filling */)
     {
+        //frame
     for(int x=0;x<sx;x++)
     {
-        //im.setPixel(x,0,fc);
-        //im.setPixel(x,sy-1,fc);
+
         bvec[x+0]=fchar;
         bvec[x+sx*(sy-1)]=fchar;
     }
     for(int y=0;y<sy;y++)
     {
-        //im.setPixel(0,y,fc);
-        //im.setPixel(sx-1,y,fc);
+
         bvec[0+sx*y]=fchar;
         bvec[sx-1+sx*y]=fchar;
     }
-
-
-
 
     flootFill( fchar, bchar);
 
@@ -289,20 +275,59 @@ void Layer::fromStl(float z, StlFile &stl)
     } //dofilling
 }
 
+void Layer::realFloodfill(char fillcol, char bcol)
+{
+    cout<<"floodfilling"<<endl;
+
+    stack<int> s;
+    /*for(int y=0;y<sy-1;y++)
+    for(int x=0;x<sx-1;x++)
+    if(bvec[x+sx*y]==fillcol)
+    {
+        s.push(x+sx*y);
+    }
+    */
+    s.push(0);
+    bvec[0]=bcol;
+    while (!s.empty() )
+    {
+        int p= s.top();
+        s.pop();
+        if((p<0) || (p>sx*sy))
+                continue;
+    //cout<<"f1"<<endl;
+
+        char val = bvec[p];
+        if (val == bcol)
+        {
+            bvec[p] = fillcol;
+            s.push(p+1);
+            s.push(p+sx);
+            s.push(p-1);
+
+            s.push(p-sx);
+        }
+    }
+}
+
 QImage Layer::toQImage()
 {
     QImage im(sx,sy,QImage::Format_RGB888);
 
 
-    const QRgb fc=qRgb(255,0,0);
+
+     const QRgb fc=qRgb(255,0,0);
     const QRgb fc2=qRgb(255,255,0);
-    const QRgb bc=qRgb(0,0,0);
+
     const QRgb lc=qRgb(128,128,128);
+
+    const QRgb bc=qRgb(0,0,0);
     im.fill(bc);
     for(int y=0;y<sy;y++)
     for(int x=0;x<sx;x++)
     {
-        /*
+        if(1)
+        {
         if(bvec[x+sx*y]==fchar)
             im.setPixel(x,y,fc);
         if(bvec[x+sx*y]==fchar2)
@@ -311,11 +336,11 @@ QImage Layer::toQImage()
             im.setPixel(x,y,bc);
         if(bvec[x+sx*y]==lchar)
             im.setPixel(x,y,lc);
-            */
+         }
         if(bvec[x+sx*y]==fchar2)
             im.setPixel(x,y,qRgb(255,255,255));
         if(bvec[x+sx*y]==lchar)
-            im.setPixel(x,y,qRgb(255,0,0));
+            im.setPixel(x,y,qRgb(0,255,0));
 
     }
     return im;

@@ -25,10 +25,7 @@ void Illuminator::prepareNextLayer(const float z)
     Layer l;
     l.sx=width();
     l.sy=height();
-
     l.fromStl(z,stl);
-
-
 
     *imNextLayer=l.toQImage();
 }
@@ -86,7 +83,7 @@ void Illuminator::perform()
 void Illuminator::loadSTL()
 {
 
-    stl.read("test2.stl");
+    stl.read("C:/Users/BK/Documents/illuminat/test.stl");
     //stl.read("D:\\me\\3d\\3dprints\\3D_Voronoi_Yoda_-_by_Dizingof.stl");
     cout<<"size:"<<stl.t.size()<<endl;
     stl.calcRange();
@@ -102,3 +99,9 @@ void Illuminator::loadSTL()
     cout<<"in z:"<<cnt<<endl;
 }
 
+/*
+void Illuminator::resized()
+{
+    renderBlack();
+}
+*/

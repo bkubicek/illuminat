@@ -48,12 +48,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(sl,SIGNAL(valueChanged(int)),this, SLOT(slChanged(int)));
     connect(pbLoad,SIGNAL(clicked()),this, SLOT(pbLoadClicked()));
     connect(pbRun,SIGNAL(clicked()),il, SLOT(runClicked()));
+    //connect(this,SIGNAL(resizeEvent()),il, SLOT(runClicked()));
 
      if(full)
     il->showFullScreen();
      showMaximized();
 
 
+    il->renderBlack();
 }
 
 MainWindow::~MainWindow()

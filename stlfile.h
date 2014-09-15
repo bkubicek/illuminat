@@ -22,7 +22,7 @@ public:
     StlFile();
 
     std::vector<TriFace> t;
-    void read (const QString &filename, bool bin=true);
+    void read (const QString &filename);
     void write(const QString &filename, bool bin=true);
 
     float range[3][2];
