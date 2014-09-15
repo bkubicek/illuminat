@@ -277,7 +277,7 @@ void Layer::fromStl(float z, StlFile &stl)
 
 void Layer::realFloodfill(char fillcol, char bcol)
 {
-    cout<<"floodfilling"<<endl;
+    //cout<<"floodfilling"<<endl;
 
     stack<int> s;
     /*for(int y=0;y<sy-1;y++)
