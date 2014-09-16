@@ -5,7 +5,7 @@ using namespace std;
 
 Motion::Motion()
 {
-    exposure=0.1;
+    exposure=0.001;
     layerheight=0.5;
     gcodeLayer=";layer";
     gcodeStart=";start";
@@ -14,7 +14,7 @@ Motion::Motion()
 
 void Motion::readSettingsFrom(QString filename)
 {
-    filename;
+    //filename;
 }
 
 

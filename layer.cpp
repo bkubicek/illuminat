@@ -402,36 +402,39 @@ void Layer::realFloodfill(char fillcol, char bcol,int seedpos)
 
 QImage Layer::toQImage()
 {
-    QImage im(sx,sy,QImage::Format_RGB888);
+    //QElapsedTimer timer;    timer.start();
+
+    QImage im(sx,sy,QImage::Format_ARGB32);
+    //cout<<"Im creation:"<<timer.elapsed()<<endl;timer.start();
 
 
+     const QRgb fc=qRgba(255,0,0,255);
+    const QRgb fc2=qRgba(255,255,0,255);
 
-     const QRgb fc=qRgb(255,0,0);
-    const QRgb fc2=qRgb(255,255,0);
+    const QRgb lc=qRgba(128,128,128,255);
 
-    const QRgb lc=qRgb(128,128,128);
-
-    const QRgb bc=qRgb(0,0,0);
+    const QRgb bc=qRgba(0,0,0,255);
     im.fill(bc);
-    for(int y=0;y<sy;y++)
-    for(int x=0;x<sx;x++)
-    {
-        if(1)
-        {
-        if(bvec[x+sx*y]==fchar)
-            im.setPixel(x,y,fc);
-        if(bvec[x+sx*y]==fchar2)
-            im.setPixel(x,y,fc2);
-        if(bvec[x+sx*y]==bchar)
-            im.setPixel(x,y,bc);
-        if(bvec[x+sx*y]==lchar)
-            im.setPixel(x,y,lc);
-         }
-        if(bvec[x+sx*y]==fchar2)
-            im.setPixel(x,y,qRgb(255,255,255));
-        if(bvec[x+sx*y]==lchar)
-            im.setPixel(x,y,qRgb(0,255,0));
+    //cout<<"Im fill:"<<timer.elapsed()<<endl;timer.start();
 
+    int p=0;
+    for( int i = 0; i < sy; ++i)
+    {
+        QRgb *scL = reinterpret_cast< QRgb *>( im.scanLine( i ) );
+
+        for( int j = 0; j < sx; ++j)
+        {
+            switch(bvec[p++])
+            {
+            //case fchar : scL[j]=fc ;break;
+            case fchar2: scL[j]=fc2;break;
+            case bchar : scL[j]=bc ;break;
+            case lchar:  scL[j]=lc;break;
+           // case fchar2: scL[j]=qRgba(255,255,255,255);break
+            //case lchar:  scL[j]=qRgba(0,255,0,255);break;
+            }
+        }
     }
+    //cout<<"Im color:"<<timer.elapsed()<<endl;timer.start();
     return im;
 }

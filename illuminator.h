@@ -11,6 +11,7 @@ class Motion;
 class QImage;
 
 #include "stlfile.h"
+#include "webcommandinterface.h"
 
 /* The widget that displays the projector content */
 class Illuminator : public QGraphicsView
@@ -28,6 +29,7 @@ public:
     float currentz;
     Motion *mo;
     QImage *imNextLayer;
+    WebCommandInterface *cmd;
 
 signals:
 

@@ -18,6 +18,8 @@ Illuminator::Illuminator(QObject *parent) :
     pm=new QPixmap();
     imNextLayer=new QImage();
     renderBlack();
+
+    cmd=new WebCommandInterface(mo) ;
 }
 
 void Illuminator::prepareNextLayer(const float z)
@@ -64,10 +66,13 @@ void Illuminator::runClicked()
 
 void Illuminator::perform()
 {
+    cout.flush();
+    cerr<<"Starting perform"<<endl;
     renderBlack();
     mo->doLayerChange();
     prepareNextLayer(currentz);
     currentz+=mo->layerheight;
+
     if(currentz<stl.range[2][1])
     {
         displayPreparedLayer();
@@ -75,8 +80,10 @@ void Illuminator::perform()
     }
     else
     {
+         cerr<<"outside"<<endl;
         renderBlack();
         mo->doEnd();
+        cerr<<"exiting now"<<endl;
         exit(0);
     }
 }
@@ -100,9 +107,3 @@ void Illuminator::loadSTL()
     cout<<"in z:"<<cnt<<endl;
 }
 
-/*
-void Illuminator::resized()
-{
-    renderBlack();
-}
-*/

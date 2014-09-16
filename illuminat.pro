@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
 
@@ -22,14 +22,16 @@ SOURCES += main.cpp\
 		stlfile.cpp \
 		layer.cpp \
     motion.cpp \
-    illuminator.cpp
+    illuminator.cpp \
+    webcommandinterface.cpp
 
 HEADERS  += mainwindow.h \
 		triface.h \
 		stlfile.h \
 		layer.h \
     motion.h \
-    illuminator.h
+    illuminator.h \
+    webcommandinterface.h
 
 OTHER_FILES += \
     settings.ini
