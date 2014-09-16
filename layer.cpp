@@ -3,6 +3,8 @@
 #include <QImage>
 #include <stack>
 #include <iostream>
+#include <list>
+#include <QElapsedTimer>
 using namespace  std;
 
 Layer::Layer()
@@ -165,46 +167,9 @@ bool Layer::flootFill(char fillcol, char bcol)
 
 }
 
-void Layer::fromStl(float z, StlFile &stl)
+void Layer::findAreasOld()
 {
-
-
-    //const char bchar=0;
-
-
-
-
-    bvec.resize(sx*sy,bchar);
-
-    float xres=(stl.range[0][1]-stl.range[0][0])/float(sx-4);
-    float yres=(stl.range[1][1]-stl.range[1][0])/float(sy-4);
-    int band=stl.findBand(z);
-    if(band>=0)
-    for(int i=0;i<(int)stl.bands[band].size();i++)
-    if(stl.t[stl.bands[band][i]].isInZ(z))
-    {
-        TriFace &t=stl.t[stl.bands[band][i]];
-
-        float a[3],b[3];
-        if(t.lineAtZ(z,a,b))
-        {
-            int ia[2],ib[2];
-            ia[0]=int(2+(a[0]-stl.range[0][0])/xres);
-            ia[1]=int(2+(a[1]-stl.range[1][0])/yres);
-            ib[0]=int(2+(b[0]-stl.range[0][0])/xres);
-            ib[1]=int(2+(b[1]-stl.range[1][0])/yres);
-
-            bhm_line(ia[0],ia[1],ib[0],ib[1],lchar);
-
-
-        }
-    }
-
-    bvec[0]=bchar;
-    realFloodfill(fchar,bchar);
-    if(0 /*do filling */)
-    {
-        //frame
+    //frame
     for(int x=0;x<sx;x++)
     {
 
@@ -220,26 +185,24 @@ void Layer::fromStl(float z, StlFile &stl)
 
     flootFill( fchar, bchar);
 
-    bool alternate=true;
-
     char newfill=fchar2;
-    char oldfill=fchar;
-    bool newfound=false;
-    do
+      char oldfill=fchar;
+      bool newfound=false;
+      do
     {
-        newfound=false;
-        if(!alternate)
-        {
+    bool alternate=true;
+    if(!alternate)
+    {
 
-            newfill=fchar;
-            oldfill=fchar2;
-        }
-        else
-        {
-            newfill=fchar2;
-            oldfill=fchar;
+        newfill=fchar;
+        oldfill=fchar2;
+    }
+    else
+    {
+        newfill=fchar2;
+        oldfill=fchar;
 
-        }
+    }
 
     for(int y=1;y<sy-1;y++)
     for(int x=1;x<sx-1;x++)
@@ -272,10 +235,137 @@ void Layer::fromStl(float z, StlFile &stl)
     alternate=!alternate;
 
     }while(newfound);
-    } //dofilling
+
+
 }
 
-void Layer::realFloodfill(char fillcol, char bcol)
+void Layer::findAreas()
+{
+    list<int> lpos;  //line positions that are in the source image
+    for(int y=1;y<sy-1;y++)
+    for(int x=1;x<sx-1;x++)
+        if(bvec[sx*y+x]==lchar)
+            lpos.push_back(sx*y+x);
+
+    //bvec[0]=bchar;
+    realFloodfill(fchar,bchar,0);
+    bool newAreaFound;
+    bool alternate=true;
+
+    char newfill, oldfill;
+    do
+    {
+        newAreaFound=false;
+
+        if(!alternate)
+        {
+            newfill=fchar; oldfill=fchar2;
+        }
+        else
+        {
+            newfill=fchar2; oldfill=fchar;
+        }
+
+        //for(int i=0;i<lpos.size();i++)
+         for(std::list<int>::iterator il = lpos.begin(), end = lpos.end(); il != end; ++il)
+        {
+            int p=*il;
+            int newfound=-1;
+            if( bvec[p-1]==oldfill && bvec[p+1]==bchar)
+              newfound=p+1;
+            else
+            if( bvec[p+1]==oldfill && bvec[p-1]==bchar)
+               newfound=p-1;
+            else
+            if( bvec[p+sx]==oldfill && bvec[p-sx]==bchar)
+                newfound=p+sx;
+            else
+            if( bvec[p-sx]==oldfill && bvec[p+sx]==bchar)
+                newfound=p-sx;
+            if(newfound>0)
+            {
+                newAreaFound=true;
+                //cerr<<"found new area:"<<newfound<<endl;
+                realFloodfill(newfill,bchar,newfound);
+
+            }
+        }
+        alternate=!alternate;
+
+        //cerr<<"Starting to delete unnecessary line elements"<<lpos.size()<<endl;
+
+        if(0)
+        {
+        std::list< int  >::iterator iter = lpos.begin();
+        std::list< int  >::iterator end  = lpos.end();
+
+        while (iter != lpos.end())
+        {
+
+            int p=*iter;
+            if( !(   (bvec[p+1]==bchar)|| (bvec[p-1]==bchar) ||(bvec[p+sx]==bchar) || (bvec[p-sx]==bchar)))
+                iter=lpos.erase(iter);
+            else
+                ++iter;
+
+
+        }
+
+        //cerr<<"now: "<<lpos.size()<<endl;
+        }
+    }while(newAreaFound);
+
+}
+
+void Layer::fromStl(float z, StlFile &stl)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+
+
+    //const char bchar=0;
+
+
+
+
+    bvec.resize(sx*sy,bchar);
+
+    float xres=(stl.range[0][1]-stl.range[0][0])/float(sx-4);
+    float yres=(stl.range[1][1]-stl.range[1][0])/float(sy-4);
+    int band=stl.findBand(z);
+    if(band>=0)
+    for(int i=0;i<(int)stl.bands[band].size();i++)
+    if(stl.t[stl.bands[band][i]].isInZ(z))
+    {
+        TriFace &t=stl.t[stl.bands[band][i]];
+
+        float a[3],b[3];
+        if(t.lineAtZ(z,a,b))
+        {
+            int ia[2],ib[2];
+            ia[0]=int(2+(a[0]-stl.range[0][0])/xres);
+            ia[1]=int(2+(a[1]-stl.range[1][0])/yres);
+            ib[0]=int(2+(b[0]-stl.range[0][0])/xres);
+            ib[1]=int(2+(b[1]-stl.range[1][0])/yres);
+
+            bhm_line(ia[0],ia[1],ib[0],ib[1],lchar);
+
+
+        }
+    }
+    cout<<"Time for lines:"<<timer.elapsed()<<endl;
+    timer.start();
+
+
+    //findAreasOld();
+    findAreas();
+    cout<<"Time for filling:"<<timer.elapsed()<<endl;
+
+
+}
+
+void Layer::realFloodfill(char fillcol, char bcol,int seedpos)
 {
     //cout<<"floodfilling"<<endl;
 
@@ -287,8 +377,8 @@ void Layer::realFloodfill(char fillcol, char bcol)
         s.push(x+sx*y);
     }
     */
-    s.push(0);
-    bvec[0]=bcol;
+    s.push(seedpos);
+    //bvec[0]=bcol;
     while (!s.empty() )
     {
         int p= s.top();

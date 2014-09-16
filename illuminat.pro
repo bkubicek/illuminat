@@ -11,10 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
 TARGET = illuminat
 TEMPLATE = app
 
-#QMAKE_CXXFLAGS +=  -O3
+QMAKE_CXXFLAGS +=  -O3
 #profile:
-QMAKE_CXXFLAGS +=  -g -pg 
-QMAKE_LFLAGS +=  -g -pg 
+#QMAKE_CXXFLAGS +=  -g -pg
+#QMAKE_LFLAGS +=  -g -pg
 
 SOURCES += main.cpp\
         mainwindow.cpp \

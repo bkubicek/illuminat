@@ -71,13 +71,13 @@ void Illuminator::perform()
     if(currentz<stl.range[2][1])
     {
         displayPreparedLayer();
-     QTimer::singleShot(mo->exposure*1000, this, SLOT(perform()));
+        QTimer::singleShot(mo->exposure*1000, this, SLOT(perform()));
     }
     else
     {
         renderBlack();
         mo->doEnd();
-	exit(0);
+        exit(0);
     }
 }
 
