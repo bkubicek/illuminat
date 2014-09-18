@@ -18,6 +18,8 @@ signals:
 public slots:
 
 void newConnection();
+void discardClient();
+void readClient();
 
 private:
     QTcpServer *server;
