@@ -23,7 +23,8 @@ SOURCES += main.cpp\
 		layer.cpp \
     motion.cpp \
     illuminator.cpp \
-    webcommandinterface.cpp
+    webcommandinterface.cpp \
+    settings.cpp
 
 HEADERS  += mainwindow.h \
 		triface.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
 		layer.h \
     motion.h \
     illuminator.h \
-    webcommandinterface.h
+    webcommandinterface.h \
+    settings.h
 
 OTHER_FILES += \
     settings.ini

@@ -16,6 +16,7 @@ using namespace std;
 
 #include "motion.h"
 #include "illuminator.h"
+#include "settings.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -68,7 +69,8 @@ MainWindow::~MainWindow()
 void MainWindow::slChanged(int i)
 {
     il->renderBlack();
-    il->prepareNextLayer(il->stl.range[2][0]+(i-0.5)/float(100)*(il->stl.range[2][1]-il->stl.range[2][0]));
+    il->set->currentz=il->stl->range[2][0]+(i-0.5)/float(100)*(il->stl->range[2][1]-il->stl->range[2][0]);
+    il->prepareNextLayer(il->set->currentz);
 
     il->displayPreparedLayer();
 }
@@ -76,6 +78,6 @@ void MainWindow::slChanged(int i)
 void MainWindow::pbLoadClicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,"Open Object", "", "STL Files (*.stl *.STL *.Stl)");
-    il->stl.read(fileName);
+    il->stl->read(fileName);
 }
 

@@ -2,16 +2,28 @@
 #define WEBCOMMANDINTERFACE_H
 
 #include <QObject>
+#include <QTextStream>
 
 #include "motion.h"
+#include "illuminator.h"
 
 class QTcpServer;
+class Settings;
+class Illuminator;
 
 class WebCommandInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebCommandInterface(Motion *_motion, QObject *parent = 0);
+    explicit WebCommandInterface(Illuminator *_ill,Motion *_motion, Settings *_set, QObject *parent = 0);
+
+
+    void htmlStart(QTextStream &os);
+    void html404(QTextStream &os);
+    void htmlCurSlice(QTextStream &os);
+
+    Settings *set;
+    Illuminator *ill;
 
 signals:
 

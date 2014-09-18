@@ -2,13 +2,17 @@
 
 #include <QTcpSocket>
 #include <QTcpServer>
+#include <QBuffer>
 #include <iostream>
+#include "settings.h"
 using namespace std;
 
-WebCommandInterface::WebCommandInterface(Motion *_motion, QObject *parent) :
+WebCommandInterface::WebCommandInterface(Illuminator *_ill,Motion *_motion, Settings *_set, QObject *parent) :
     QObject(parent)
 {
     motion=_motion;
+    set=_set;
+    ill=_ill;
     server = new QTcpServer(this);
 
         // whenever a user connects, it will emit signal
@@ -45,38 +49,84 @@ void WebCommandInterface::newConnection()
 
 }
 
+void WebCommandInterface::htmlStart(QTextStream &os)
+{
+    os << "HTTP/1.0 200 Ok\r\n"
+        "Content-Type: text/html; charset=\"utf-8\"\r\n"
+        "\r\n"
+          ;
+    os<<"<head><meta http-equiv=\"refresh\" content=\"5\"></head>";
+    os<<"<h1>Illuminator State:</h1>\n";
+
+    os<<"<table><tr><th>Variable:</th><th>Value</th></tr>\n";
+    os<<"<tr><td>STL loaded:</td><td>"<<((set->stlLoaded)?"Yes":"No")<<"</td></tr>\n";
+    os<<"<tr><td>STL filename:</td><td>"<<set->stlName<<"</td></tr>\n";
+    os<<"<tr><td>Building:</td><td>"<<((set->printing)?"Yes":"No")<<"</td></tr>\n";
+    os<<"<tr><td>Currentz:</td><td>"<<set->currentz<<"</td></tr>\n";
+
+}
+
+void WebCommandInterface::html404(QTextStream &os)
+{
+    os << "HTTP/1.0 200 Ok\r\n"
+        "Content-Type: text/html; charset=\"utf-8\"\r\n"
+        "\r\n"
+          ;
+    os<<"<h1>Page does not exist</h1>\n";
+    //os<<"<h1>Nothing to see here</h1>\n";
+}
+
+void WebCommandInterface::htmlCurSlice(QTextStream &os)
+{
+      QByteArray ba;
+      QBuffer buffer(&ba);
+      buffer.open(QIODevice::WriteOnly);
+      ill->imNextLayer->save(&buffer, "PNG"); // writes image into ba in PNG format
+    os << "HTTP/1.0 200 Ok\r\n"
+        "Content-Type: image/png; charset=\"utf-8\"\r\n"
+        "\r\n"
+          ;
+    os.write(buffer.data(),buffer.size());
+    os<<buffer;
+    //os<<"<h1>Nothing to see here</h1>\n";
+}
+
 void WebCommandInterface::readClient()
 {
     //if (disabled)
     //    return;
-
-    // This slot is called when the client sent data to the server. The
-    // server looks if it was a get request and sends a very simple HTML
-    // document back.
     QTcpSocket* socket = (QTcpSocket*)sender();
-    if (socket->canReadLine()) {
-        QStringList tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
-        for(int i=0;i<tokens.size();i++)
-            cout<<"Got: "<<tokens[i].toStdString()<<endl;
-        if (tokens[0] == "GET") {
-            QTextStream os(socket);
-            os.setAutoDetectUnicode(true);
-            os << "HTTP/1.0 200 Ok\r\n"
-                "Content-Type: text/html; charset=\"utf-8\"\r\n"
-                "\r\n"
-                "<h1>Nothing to see here</h1>\n"
-               <<"footbar" << "\n";
-            socket->close();
+    if (!socket->canReadLine() )
+        return;
 
-            cout<<"Srv: wrote to client"<<endl;
-            //QtServiceBase::instance()->logMessage("Wrote to client");
+    QStringList tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+    for(int i=0;i<tokens.size();i++)
+        cout<<"Got: "<<tokens[i].toStdString()<<endl;
+    if (tokens[0] == "GET")
+    {
+        QTextStream os(socket);
+        os.setAutoDetectUnicode(true);
 
-            if (socket->state() == QTcpSocket::UnconnectedState) {
-                delete socket;
-                //QtServiceBase::instance()->logMessage("Connection closed");
-                cout<<"Srv: Connection closed"<<endl;
-            }
+        if(tokens[1]=="/")
+        {
+            htmlStart(os);
+        }
+        if(tokens[1]=="/cur.png")
+        {
+            htmlCurSlice(os);
+        }
+        else
+            html404(os);
 
+        socket->close();
+
+        cout<<"Srv: wrote to client"<<endl;
+
+
+        if (socket->state() == QTcpSocket::UnconnectedState) {
+            delete socket;
+
+            cout<<"Srv: Connection closed"<<endl;
         }
     }
 }

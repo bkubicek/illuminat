@@ -7,9 +7,12 @@
 #include <float.h>
 #include <stdint.h>
 
+#include "settings.h"
+
 using namespace std;
-StlFile::StlFile()
+StlFile::StlFile(Settings *_set)
 {
+    set=_set;
 }
 
 void StlFile::read(const QString &filename)
@@ -147,6 +150,9 @@ void StlFile::read(const QString &filename)
         //out<<"endsolid thing"<<endl;
         //out.close();
     }
+    set->stlLoaded=(t.size()>0);
+    set->stlName=filename;
+
     calcRange();
 }
 

@@ -5,6 +5,7 @@
 #include "triface.h"
 #include <QString>
 
+class Settings;
 class ZTree
 {
  public:
@@ -19,7 +20,7 @@ class ZTree
 class StlFile
 {
 public:
-    StlFile();
+    StlFile(Settings *_set);
 
     std::vector<TriFace> t;
     void read (const QString &filename);
@@ -32,6 +33,9 @@ public:
     std::vector<std::vector<int> > bands;
     std::vector<float> bandlimits;
     int findBand(const float z);
+
+
+    Settings *set;
 };
 
 #endif // STLFILE_H

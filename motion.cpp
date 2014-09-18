@@ -1,15 +1,12 @@
 #include "motion.h"
+#include "settings.h"
 
 #include <iostream>
 using namespace std;
 
-Motion::Motion()
+Motion::Motion( Settings *_set)
 {
-    exposure=0.001;
-    layerheight=0.5;
-    gcodeLayer=";layer";
-    gcodeStart=";start";
-    gcodeEnd=";end";
+    set=_set;
 }
 
 void Motion::readSettingsFrom(QString filename)
@@ -20,17 +17,17 @@ void Motion::readSettingsFrom(QString filename)
 
 void Motion::doLayerChange()
 {
- send(gcodeLayer);
+ send(set->gcodeLayer);
 }
 
 void Motion::doStart()
 {
- send(gcodeStart);
+ send(set->gcodeStart);
 }
 
 void Motion::doEnd()
 {
- send(gcodeEnd);
+ send(set->gcodeEnd);
 }
 
 void Motion::connect(QString port,int baud)

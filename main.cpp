@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         Illuminator il;
         il.showFullScreen();
         il.show();
-        il.stl.read((argv[1]));;
+        il.stl->read((argv[1]));;
         il.runClicked();
         return a.exec();
 

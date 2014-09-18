@@ -2,6 +2,8 @@
 
 #include "layer.h"
 #include "motion.h"
+#include "settings.h"
+
 #include <QTimer>
 #include <iostream>
 
@@ -10,16 +12,19 @@ using namespace std;
 Illuminator::Illuminator(QObject *parent) :
     QGraphicsView()
 {
+
     gs=new QGraphicsScene();
     setScene(gs);
     setStyleSheet( "QGraphicsView { border-style: none; }" );
-    mo=new Motion();
+    set=new Settings();
+    mo=new Motion(set);
+    stl=new StlFile(set);
 
     pm=new QPixmap();
     imNextLayer=new QImage();
     renderBlack();
 
-    cmd=new WebCommandInterface(mo) ;
+    cmd=new WebCommandInterface(this, mo,set) ;
 }
 
 void Illuminator::prepareNextLayer(const float z)
@@ -27,7 +32,7 @@ void Illuminator::prepareNextLayer(const float z)
     Layer l;
     l.sx=width();
     l.sy=height();
-    l.fromStl(z,stl);
+    l.fromStl(z,*stl);
 
     *imNextLayer=l.toQImage();
 }
@@ -59,9 +64,11 @@ void Illuminator::renderBlack()
 
 void Illuminator::runClicked()
 {
-    currentz=stl.range[2][0];
-    perform();
+    set->currentz=stl->range[2][0];
+    set->printing=true;
+
     mo->doStart();
+    perform();
 }
 
 void Illuminator::perform()
@@ -70,37 +77,37 @@ void Illuminator::perform()
     cerr<<"Starting perform"<<endl;
     renderBlack();
     mo->doLayerChange();
-    prepareNextLayer(currentz);
-    currentz+=mo->layerheight;
+    prepareNextLayer(set->currentz);
+    set->currentz+=set->layerheight;
 
-    if(currentz<stl.range[2][1])
+    if(set->currentz<stl->range[2][1])
     {
         displayPreparedLayer();
-        QTimer::singleShot(mo->exposure*1000, this, SLOT(perform()));
+        QTimer::singleShot(set->exposure*1000, this, SLOT(perform()));
     }
     else
     {
          cerr<<"outside"<<endl;
         renderBlack();
         mo->doEnd();
-        cerr<<"exiting now"<<endl;
-        exit(0);
+        set->printing=false;
+        //cerr<<"exiting now"<<endl;exit(0);
     }
 }
 
 void Illuminator::loadSTL()
 {
 
-    stl.read("C:/Users/BK/Documents/illuminat/test.stl");
+    stl->read("C:/Users/BK/Documents/illuminat/test.stl");
     //stl.read("D:\\me\\3d\\3dprints\\3D_Voronoi_Yoda_-_by_Dizingof.stl");
-    cout<<"size:"<<stl.t.size()<<endl;
-    stl.calcRange();
+    cout<<"size:"<<stl->t.size()<<endl;
+    stl->calcRange();
 
     int cnt=0;
-    for(int i=0;i<int(stl.t.size());i++)
+    for(int i=0;i<int(stl->t.size());i++)
     {
 
-        if(stl.t[i].isInZ(5.7,6))
+        if(stl->t[i].isInZ(5.7,6))
             cnt++;
 
     }
